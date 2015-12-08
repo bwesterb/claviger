@@ -1,0 +1,8 @@
+*.pyo
+*.pyc
+*.swp
+/*.egg-info
+/.eggs
+/build
+/dist
+/MANIFEST
