@@ -121,7 +121,8 @@ def load(path):
         source_server = cfg['servers'][target_server['like']]
         for attr in ('port', 'user', 'hostname', 'ssh_user'):
             if attr in source_server:
-                target_server.setdefault(attr, source_server[attr])
+                if target_server[attr] is None:
+                    target_server[attr] = source_server[attr]
         
     l.debug('         ... done')
 

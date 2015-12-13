@@ -38,17 +38,20 @@ class Claviger(object):
         # As check_server is iobound, the threads are better than processes.
         pool = multiprocessing.pool.ThreadPool(processes=8)
         global_changes = False
-        for res in pool.imap_unordered(claviger.worker.check_server,
+        for sn, res in pool.imap_unordered(claviger.worker.check_server,
                 (claviger.worker.Job(server=self.cfg['servers'][server_name],
                                     keys=self.cfg['keys'],
                                     dry_run=self.args.dry_run)
                              for server_name in self.cfg['servers'])):
+            if not res:
+                print("{0}: error".format(sn))
+                continue
             changes = any([res.n_keys_added, res.n_keys_removed])
             global_changes |= changes
-            l.debug('        %s: done', res.server_name)
+            l.debug('        %s: done', sn)
             if not changes:
                 continue
-            print ("{0}: {1} keys added, {2} removed".format(res.server_name,
+            print ("{0}: {1} keys added, {2} removed".format(sn,
                             res.n_keys_added, res.n_keys_removed))
         if not global_changes:
             print('Everything is in order.')
