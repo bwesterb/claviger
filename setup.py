@@ -18,7 +18,9 @@ setup(
     test_suite='claviger.tests',
     license='GPL 3.0',
     install_requires=['demandimport',
+                      'PyYAML',
                       'six',
+                      'tarjan',
                             ],
     entry_points = {
         'console_scripts': [

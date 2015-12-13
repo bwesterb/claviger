@@ -1,6 +1,8 @@
 """ Lenient parser for authorized_keys. """
 from six.moves import range
 
+import six
+
 import base64
 import struct
 
@@ -34,12 +36,14 @@ class InvalidLine(Line):
     pass
 
 class Entry(Line):
-    def __init__(self, options, keytype, key, comment, raw_line):
+    def __init__(self, options, keytype, key, comment, raw_line=None):
         super(Entry, self).__init__(raw_line)
         self._options = options
         self._keytype = keytype
         self._key = key
         self._comment = comment
+        if raw_line is None:
+            self._update_rawline()
 
     @property
     def options(self):
@@ -160,6 +164,8 @@ class AuthorizedKeysFile(object):
             if line.key == key:
                 return True
         return False
+    def add(self, options, keytype, key, comment):
+        self.lines.append(Entry(options, keytype, key, comment))
     @property
     def entries(self):
         """ Returns a list of all entries """
@@ -169,14 +175,22 @@ class AuthorizedKeysFile(object):
         for line in self.lines:
             line.store(f)
             f.write('\n')
+    def __bytes__(self):
+        f = six.BytesIO()
+        self.store(f)
+        return f.getvalue()
+    __str__ = __bytes__
 
-def parse(f, ignoreInvalidLines=True):
-    """ Parse authorized_keys from file-like-object f.
+def parse(file_or_str, ignoreInvalidLines=True):
+    """ Parse authorized_keys from file-like-object or string f.
         
         If ignoreInvalidLines is set (default), the parser will ignore
         lines it cannot succesfully parse. """
-
     parsed_lines = []
+    if isinstance(file_or_str, six.binary_type):
+        f = six.BytesIO(file_or_str)
+    else:
+        f = file_or_str
     while True:
         l = f.readline()
         if not l:

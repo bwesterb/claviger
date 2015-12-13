@@ -1,0 +1,32 @@
+# TODO generate documention from schema?
+type: object
+required: [keys, servers]
+properties:
+  keys:
+    type: object
+    default: {}
+    additionalProperties:
+      type: string
+      # TODO ... or with object with keys {comment, key, keyname, options}
+  servers:
+    type: object
+    additionalProperties:
+      type: object
+      properties:
+        name: { type: string }
+        hostname: { type: string }
+        port: { type: integer }
+        user: { type: string }
+        ssh_user: { type: string }
+        absent:
+          type: array
+          items:
+            type: string
+        present:
+          type: array
+          items:
+            type: string
+        like: { type: string }
+      additionalProperties: false
+additionalProperties: false
+# vim: sw=2 ts=2 et
