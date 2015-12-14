@@ -15,6 +15,8 @@ setup(
     url='http://github.com/bwesterb/claviger/',
     packages=['claviger', 'claviger.tests'],
     package_dir={'claviger': 'src'},
+    package_data={'claviger': [
+                    'config.schema.yml']},
     test_suite='claviger.tests',
     license='GPL 3.0',
     install_requires=['demandimport',
