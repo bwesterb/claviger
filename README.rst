@@ -23,6 +23,7 @@ by creating a ``~/.claviger``-file.  An example::
             like: myprivateserver.com
             present:
                 - work
+            keepOtherKeys: false
         workuser@workserver.com:
             present:
                 - work

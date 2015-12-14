@@ -27,6 +27,7 @@ properties:
           items:
             type: string
         like: { type: string }
+        keepOtherKeys: { type: boolean}
       additionalProperties: false
 additionalProperties: false
 # vim: sw=2 ts=2 et

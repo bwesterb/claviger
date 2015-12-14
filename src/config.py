@@ -51,7 +51,7 @@ def parse_server_name(hostname):
 def load(path):
     """ Loads the configuration file.
     
-        Most of the work is done by YAML.  We validate the easy bits with
+        A lot of the work is done by YAML.  We validate the easy bits with
         a JSON schema. The rest by hand. """
     # TODO Cache schema and configuration file
     l.debug('loading configuration file ...')
@@ -88,6 +88,7 @@ def load(path):
         server.setdefault('ssh_user', server['user'])
         server.setdefault('present', [])
         server.setdefault('absent', [])
+        server.setdefault('keepOtherKeys')
         server.setdefault('like')
         prabsent = frozenset(server['present']) & frozenset(server['absent'])
         if prabsent:
@@ -121,7 +122,8 @@ def load(path):
         source_server = cfg['servers'][target_server['like']]
 
         # First the simple attributes
-        for attr in ('port', 'user', 'hostname', 'ssh_user'):
+        for attr in ('port', 'user', 'hostname', 'ssh_user',
+                        'keepOtherKeys'):
             if attr in source_server:
                 if target_server[attr] is None:
                     target_server[attr] = source_server[attr]
@@ -137,6 +139,14 @@ def load(path):
                 continue
             if key not in target_server['absent']:
                 target_server['absent'].append(key)
+
+    l.debug('  - setting defaults on server stanzas')
+    for server in six.itervalues(cfg['servers']):
+        for attr, dflt in (('port', 22),
+                           ('user', 'root'),
+                           ('keepOtherKeys', True)):
+            if server[attr] is None:
+                server[attr] = dflt
         
     l.debug('         ... done')
 

@@ -156,6 +156,13 @@ def check_key(b64key, keytype):
 class AuthorizedKeysFile(object):
     def __init__(self, lines):
         self.lines = lines
+    def get(self, key):
+        """ Returns the first occurance of key """
+        for line in self.lines:
+            if not isinstance(line, Entry):
+                continue
+            if line.key == key:
+                return key
     def contains(self, key):
         """ Checks whether a key occurs """
         for line in self.lines:
@@ -164,6 +171,15 @@ class AuthorizedKeysFile(object):
             if line.key == key:
                 return True
         return False
+    def remove(self, key):
+        """ Removes all occurances of the given key. """
+        self.lines = [line for line in self.lines
+                        if not isinstance(line, Entry) or
+                                line.key != key]
+    def removeAllKeys(self):
+        """ Remove all keys, but leave the other entries. """
+        self.lines = [line for line in self.lines
+                        if not isinstance(line, Entry)]
     def add(self, options, keytype, key, comment):
         self.lines.append(Entry(options, keytype, key, comment))
     @property
