@@ -112,7 +112,8 @@ class Claviger(object):
         parser.add_argument('--verbose', '-v', action='count',
                             dest='verbosity',
                     help='Add to increase make claviger chatty')
-        parser.add_argument('--parallel-connections', '-p', type=int, default=8,
+        parser.add_argument('--parallel-connections', '-p', metavar='N',
+                                type=int, default=8,
                     help='Number of parallel connections')
         parser.add_argument('--apply-changes', '-f', action='store_false',
                             dest='dry_run',
