@@ -119,10 +119,24 @@ def load(path):
         if not target_server['like'] in cfg['servers']:
             pass
         source_server = cfg['servers'][target_server['like']]
+
+        # First the simple attributes
         for attr in ('port', 'user', 'hostname', 'ssh_user'):
             if attr in source_server:
                 if target_server[attr] is None:
                     target_server[attr] = source_server[attr]
+
+        # Now, the present/absent lists
+        for key in source_server['present']:
+            if key in target_server['absent']:
+                continue
+            if key not in target_server['present']:
+                target_server['present'].append(key)
+        for key in source_server['absent']:
+            if key in target_server['present']:
+                continue
+            if key not in target_server['absent']:
+                target_server['absent'].append(key)
         
     l.debug('         ... done')
 
