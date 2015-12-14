@@ -1,4 +1,4 @@
 include README.rst
 include CHANGES.rst
 include LICENSE
-recursive-include docs/*.yml
+recursive-include docs *.yml
