@@ -54,7 +54,6 @@ class Claviger(object):
             the_map = pool.imap_unordered
 
         global_changes = False
-        printed_header = False
         errors_occured = False
         for ret in the_map(claviger.worker.check_server,
                 (claviger.worker.Job(server=self.cfg['servers'][server_name],
