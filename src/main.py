@@ -41,7 +41,7 @@ class Claviger(object):
             self.cfg = claviger.config.load(self.args.configfile)
             self.check_servers()
         except Exception:
-            self.handle_uncaught_exception()
+            return self.handle_uncaught_exception()
 
     def check_servers(self):
         if self.args.parallel_connections == 1:
@@ -132,6 +132,7 @@ class Claviger(object):
         sys.stderr.write('  https://github.com/bwesterb/claviger/issues\n')
         sys.stderr.write('\n')
         sys.stderr.flush()
+        return 2
 
 def entrypoint():
     """ entry-point of claviger """

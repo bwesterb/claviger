@@ -1,2 +1,3 @@
 0: everything ok
 1: configfile does not exist
+2: unexpected exception
