@@ -5,7 +5,7 @@ from setuptools import setup
 
 setup(
     name='claviger',
-    version='0.1.0',
+    version='0.1.1.dev0',
     description='Synchronizes remote SSH authorized_keys',
     long_description="{0:s}\n{1:s}". format(
                     open('README.rst').read(),
