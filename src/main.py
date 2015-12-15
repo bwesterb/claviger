@@ -109,7 +109,7 @@ class Claviger(object):
                                 type=os.path.expanduser, default='~/.claviger',
                                 help='Configuration file')
         parser.add_argument('--verbose', '-v', action='count',
-                            dest='verbosity',
+                            dest='verbosity', default=0,
                     help='Add to increase make claviger chatty')
         parser.add_argument('--parallel-connections', '-p', metavar='N',
                                 type=int, default=8,
