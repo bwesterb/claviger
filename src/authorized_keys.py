@@ -8,17 +8,19 @@ import struct
 
 class InvalidLineError(Exception):
     def __init__(self, line, message):
-        super(InvalidLineError, self).__init__(message)
+        self.message = message
         self.line = line
     def __str__(self):
         return "{0}: {1}".format(
                             repr(self.line), self.message)
 
 class ParseError(Exception):
-    pass
+    def __init__(self, message):
+        self.message = message
 
 class CouldNotParseLine(Exception):
-    pass
+    def __init__(self, message):
+        self.message = message
 
 class Line(object):
     def __init__(self, raw_line):
@@ -114,19 +116,19 @@ class Entry(Line):
         # Now the hard part: how to distinguish between options and keytype.
         # The trick: key actually also encodes keytype.
         # First case: first_field is keytype
-        if check_key(rest.split(' ')[0], first_field):
-            bits = rest.split(' ', 1)
+        if check_key(rest.split(six.b(' '))[0], first_field):
+            bits = rest.split(six.b(' '), 1)
             return Entry(keytype=first_field,
                          key=bits[0],
                          options=None,
                          comment=(None if len(bits) == 1 else bits[1].strip()),
                          raw_line=raw_line)
         # We are in the second case:
-        bits = rest.split(' ', 1)
+        bits = rest.split(six.b(' '), 1)
         if not len(bits) == 2:
             raise CouldNotParseLine("Missing key field")
         keytype = bits[0]
-        last_fields = bits[1].strip().split(' ', 1)
+        last_fields = bits[1].strip().split(six.b(' '), 1)
         key = last_fields[0]
         if not check_key(key, keytype):
             raise CouldNotParseLine("key field is malformed")
@@ -211,10 +213,10 @@ def parse(file_or_str, ignoreInvalidLines=True):
         l = f.readline()
         if not l:
             break
-        if l.endswith('\n'):
+        if l.endswith(six.b('\n')):
             l = l[:-1]
         stripped_line = l.strip()
-        if stripped_line.startswith('#') or not stripped_line:
+        if stripped_line.startswith(six.b('#')) or not stripped_line:
             parsed_lines.append(Comment(l))
             continue
         try:
