@@ -1,10 +1,11 @@
 import unittest
 import textwrap
-import StringIO
+
+import six
 
 import claviger.authorized_keys
 
-SSHD_MAN_PAGE_EXAMPLE = textwrap.dedent("""
+SSHD_MAN_PAGE_EXAMPLE = six.b(textwrap.dedent("""
     # Comments allowed at start of line 
     ssh-rsa AAAAB3NzaC1yc2EAAAA= user@example.net 
     from="*.sales.example.net,!pc.sales.example.net" ssh-rsa AAAAB3NzaC1yc2EAAAA= john@example.net 
@@ -13,20 +14,20 @@ SSHD_MAN_PAGE_EXAMPLE = textwrap.dedent("""
     tunnel="0",command="sh /etc/netstart tun0" ssh-rsa AAAAB3NzaC1yc2EAAAA= jane@example.net 
     restrict,command="uptime" ssh-rsa AAAAB3NzaC1yc2EAAAA= user@example.net 
     restrict,pty,command="nethack" ssh-rsa AAAAB3NzaC1yc2EAAAA= user@example.net
-        """)
+    """))
 
-GRAWITY_EXAMPLE = ('ssh-foo="echo \\"Here\'s ssh-rsa for you\\"" '+
+GRAWITY_EXAMPLE = six.b('ssh-foo="echo \\"Here\'s ssh-rsa for you\\"" '+
                       'future-algo AAAAC2Z1dHVyZS1hbGdv X y z.')
 
 class TestAuthorizedKeys(unittest.TestCase):
     def test_man_page_examples(self):
-        f = StringIO.StringIO(SSHD_MAN_PAGE_EXAMPLE)
+        f = six.BytesIO(SSHD_MAN_PAGE_EXAMPLE)
         ak = claviger.authorized_keys.parse(f, False)
         self.assertTrue(ak.contains('AAAAB3NzaC1yc2EAAAA='))
         self.assertTrue(ak.contains('AAAAB3NzaC1kc3MAAA=='))
         self.assertEqual(len(ak.entries), 7)
 
-        g = StringIO.StringIO()
+        g = six.BytesIO()
         ak.store(g)
         self.assertEqual(f.getvalue(), g.getvalue())
 
@@ -35,13 +36,13 @@ class TestAuthorizedKeys(unittest.TestCase):
         self.assertEqual(e.keytype, 'future-algo')
 
     def test_getters(self):
-        f = StringIO.StringIO(SSHD_MAN_PAGE_EXAMPLE)
+        f = six.BytesIO(SSHD_MAN_PAGE_EXAMPLE)
         ak = claviger.authorized_keys.parse(f, False)
         self.assertEqual(len(ak.entries), 7)
         self.assertEqual(ak.get('doesnotexist'), None)
 
     def test_remove(self):
-        f = StringIO.StringIO(SSHD_MAN_PAGE_EXAMPLE)
+        f = six.BytesIO(SSHD_MAN_PAGE_EXAMPLE)
         ak = claviger.authorized_keys.parse(f, False)
         self.assertTrue(ak.contains('AAAAB3NzaC1yc2EAAAA='))
         ak.remove('AAAAB3NzaC1yc2EAAAA=')
