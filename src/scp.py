@@ -5,9 +5,9 @@ import subprocess
 
 l = logging.getLogger(__name__)
 
-class SFTP(object):
+class SCP(object):
     def connect(self, hostname, port,  ssh_user):
-        return SFTPSession(hostname, port, ssh_user)
+        return SCPSession(hostname, port, ssh_user)
 
 
 def interpret_scp_error(exitcode, stderr, stdout):
@@ -19,14 +19,14 @@ def interpret_scp_error(exitcode, stderr, stdout):
         msg += '; stderr {0}'.format(repr(stderr))
     if stdout.strip():
         msg += '; stdout {0}'.format(repr(stdout))
-    return SFTPError(msg)
+    return SCPError(msg)
 
-class SFTPError(Exception):
+class SCPError(Exception):
     pass
-class HostKeyVerificationFailed(SFTPError):
+class HostKeyVerificationFailed(SCPError):
     pass
 
-class SFTPSession(object):
+class SCPSession(object):
     def __init__(self, hostname, port, ssh_user):
         self.hostname = hostname
         self.port = port if port else 22

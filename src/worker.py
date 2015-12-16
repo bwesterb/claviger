@@ -11,7 +11,7 @@ import collections
 
 import six
 
-import claviger.sftp
+import claviger.scp
 import claviger.authorized_keys
 
 # arguments send by the main process
@@ -28,12 +28,12 @@ JobResult = collections.namedtuple('JobResult',
 
 def check_server(job):
     try:
-        sftp = claviger.sftp.SFTP()
+        scp = claviger.scp.SCP()
         n_keys_removed = 0
         n_keys_added = 0
         n_keys_ignored = 0
         server = job.server
-        conn = sftp.connect(server['hostname'], server['port'],
+        conn = scp.connect(server['hostname'], server['port'],
                                     server['ssh_user'])
 
         # First pull the current authorized_keys
@@ -80,7 +80,7 @@ def check_server(job):
                     result=JobResult(n_keys_added=n_keys_added,
                                      n_keys_removed=n_keys_removed,
                                      n_keys_ignored=n_keys_ignored))
-    except claviger.sftp.SFTPError as e:
+    except claviger.scp.SCPError as e:
         return JobReturn(server_name=server['name'], ok=False, result=e)
     except Exception as e:
         # multiprocessing does not pass the stacktrace to the parent process.

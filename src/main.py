@@ -12,7 +12,7 @@ import os
 
 import claviger.config
 import claviger.worker
-import claviger.sftp
+import claviger.scp
 
 
 import six
@@ -64,7 +64,7 @@ class Claviger(object):
             if not ret.ok:
                 errors_occured = True
                 if isinstance(ret.result,
-                        claviger.sftp.HostKeyVerificationFailed):
+                        claviger.scp.HostKeyVerificationFailed):
                     print("{0:<40} host key verification failed".format(
                                 ret.server_name))
                 else:
