@@ -6,16 +6,18 @@ import itertools
 import traceback
 import argparse
 import textwrap
+import os.path
 import logging
 import sys
 import os
 
+import claviger.authorized_keys
 import claviger.config
 import claviger.worker
 import claviger.scp
 
-
 import six
+import yaml
 
 l = logging.getLogger(__name__)
 
@@ -94,12 +96,55 @@ class Claviger(object):
             if self.args.dry_run:
                 print("This is a dry run: no changes have been made.")
 
+    def find_ssh_pubkeys(self):
+        """ Searches for SSH public keys in the user's homedir.
+
+            Return a list of (unique_name, pubkey) pairs. """
+        ret = []
+        names = set()
+        ssh_dir = os.path.expanduser("~/.ssh")
+        if not os.path.isdir(ssh_dir):
+            return ret
+        for fn in os.listdir(ssh_dir):
+            if not fn.startswith('id_') or not fn.endswith('.pub'):
+                continue
+            with open(os.path.join(ssh_dir, fn), 'rb') as f:
+                raw_pubkey = f.readline()
+                if not raw_pubkey:
+                    continue
+                raw_pubkey = raw_pubkey[:-1]
+            try:
+                pubkey = claviger.authorized_keys.Entry.parse(raw_pubkey)
+            except claviger.authorized_keys.CouldNotParseLine:
+                continue
+            name = pubkey.comment if pubkey.comment else 'mykey'
+            if name in names:
+                i = 2
+                while name + str(i) in names:
+                    i += 1
+                name = name + str(i)
+            names.add(name)
+            ret.append((name, raw_pubkey))
+        return ret
+
     def show_configuration_instructions(self):
+        keys = self.find_ssh_pubkeys()
+        if not keys:
+            keys = [('exampleKey', 'ssh-rsa AAAAHitsanexamplekey comment')]
         print(textwrap.dedent("""
                 The configuration file {configfile} does not exist.
 
-                To get started, ... TODO """).format(
-                                    configfile=self.args.configfile))
+                An example config file is:
+
+                    keys: """).format(configfile=self.args.configfile))
+        for name, key in keys:
+            print("        {0}: {1}".format(yaml_str(name), yaml_str(key)))
+        print(textwrap.dedent("""
+                    servers:
+                        user@example.com:
+                            present:""").replace('\n','\n    ')[1:])
+        for name, keys in keys:
+            print("               - {0}".format(yaml_str(name)))
         return 1
 
     def parse_commandline_args(self):
@@ -133,6 +178,15 @@ class Claviger(object):
         sys.stderr.write('\n')
         sys.stderr.flush()
         return 2
+
+def yaml_str(s):
+    """ Escapes the string for inclusion in YAML. """
+    ret = yaml.dump(s)
+    if ret.endswith('\n'):
+        ret = ret[:-1]
+    if ret.endswith('\n...'):
+        ret = ret[:-4]
+    return ret
 
 def entrypoint():
     """ entry-point of claviger """
