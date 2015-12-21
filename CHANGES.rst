@@ -1,7 +1,7 @@
 claviger Changelog
 ******************
 
-0.1.1 (unreleased)
+0.1.1 (2015-12-21)
 ==================
 
 - Some cosmetic changes.
