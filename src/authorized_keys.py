@@ -88,7 +88,7 @@ class Entry(Line):
         ret = b''
         if self._options:
             ret += self._options + b' '
-        ret += b'{0} {1}'.format(self._keytype, self._key)
+        ret += self._keytype + b' ' + self._key
         if self._comment:
             ret += b' ' + self._comment
         self._raw_line = ret

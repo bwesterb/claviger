@@ -71,8 +71,9 @@ def check_server(job):
             if job.dry_run:
                 if not job.no_diff:
                     print(''.join(difflib.unified_diff(
-                                    original_raw_ak.splitlines(True),
-                                    raw_ak.splitlines(True), server['name'])))
+                                original_raw_ak.decode('utf-8').splitlines(True),
+                                raw_ak.decode('utf-8').splitlines(True),
+                                server['name'])))
             else:
                 conn.put(server['user'], raw_ak)
 
