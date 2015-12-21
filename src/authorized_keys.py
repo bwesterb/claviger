@@ -4,6 +4,7 @@ from six.moves import range
 import six
 
 import base64
+import binascii
 import struct
 
 class InvalidLineError(Exception):
@@ -84,12 +85,12 @@ class Entry(Line):
         self._update_rawline()
 
     def _update_rawline(self):
-        ret = ''
+        ret = b''
         if self._options:
-            ret += self._options + ' '
-        ret += '{0} {1}'.format(self._keytype, self._key)
+            ret += self._options + b' '
+        ret += b'{0} {1}'.format(self._keytype, self._key)
         if self._comment:
-            ret += ' ' + self._comment
+            ret += b' ' + self._comment
         self._raw_line = ret
 
     @staticmethod
@@ -98,16 +99,19 @@ class Entry(Line):
         #   [options] keytype key comment
         # The options field may contain spaces within quotes.  First
         # find where it ends.
+        if isinstance(raw_line, six.text_type):
+            raw_line = raw_line.encode('utf-8')
         l = raw_line.strip()
         in_quote = False
         after_slash = False
         i = 0
         while i < len(l):
-            if l[i] == ' ' and not in_quote:
+            cur = l[i:i+1] # In Python3 l[i] is an int
+            if cur == b' ' and not in_quote:
                 break
-            if l[i] == '"' and not after_slash:
+            if cur == b'"' and not after_slash:
                 in_quote = not in_quote
-            elif l[i] == '\\':
+            elif cur == b'\\':
                 after_slash = True
             else:
                 after_slash = False
@@ -116,19 +120,19 @@ class Entry(Line):
         # Now the hard part: how to distinguish between options and keytype.
         # The trick: key actually also encodes keytype.
         # First case: first_field is keytype
-        if check_key(rest.split(six.b(' '))[0], first_field):
-            bits = rest.split(six.b(' '), 1)
+        if check_key(rest.split(b' ')[0], first_field):
+            bits = rest.split(b' ', 1)
             return Entry(keytype=first_field,
                          key=bits[0],
                          options=None,
                          comment=(None if len(bits) == 1 else bits[1].strip()),
                          raw_line=raw_line)
         # We are in the second case:
-        bits = rest.split(six.b(' '), 1)
+        bits = rest.split(b' ', 1)
         if not len(bits) == 2:
             raise CouldNotParseLine("Missing key field")
         keytype = bits[0]
-        last_fields = bits[1].strip().split(six.b(' '), 1)
+        last_fields = bits[1].strip().split(b' ', 1)
         key = last_fields[0]
         if not check_key(key, keytype):
             raise CouldNotParseLine("key field is malformed")
@@ -144,7 +148,7 @@ def check_key(b64key, keytype):
         with the given keytype. """
     try:
         key = base64.b64decode(b64key)
-    except TypeError:
+    except (TypeError, binascii.Error):
         return False
     if len(key) < 5:
         return False
@@ -192,7 +196,7 @@ class AuthorizedKeysFile(object):
         """ Writes to file-like object f. """
         for line in self.lines:
             line.store(f)
-            f.write('\n')
+            f.write(b'\n')
     def __bytes__(self):
         f = six.BytesIO()
         self.store(f)
@@ -211,12 +215,13 @@ def parse(file_or_str, ignoreInvalidLines=True):
         f = file_or_str
     while True:
         l = f.readline()
+        assert isinstance(l, six.binary_type)
         if not l:
             break
-        if l.endswith(six.b('\n')):
+        if l.endswith(b'\n'):
             l = l[:-1]
         stripped_line = l.strip()
-        if stripped_line.startswith(six.b('#')) or not stripped_line:
+        if stripped_line.startswith(b'#') or not stripped_line:
             parsed_lines.append(Comment(l))
             continue
         try:

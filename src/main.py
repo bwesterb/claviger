@@ -181,6 +181,8 @@ class Claviger(object):
 
 def yaml_str(s):
     """ Escapes the string for inclusion in YAML. """
+    if not isinstance(s, six.string_types):
+        s = s.decode('utf-8')
     ret = yaml.dump(s)
     if ret.endswith('\n'):
         ret = ret[:-1]

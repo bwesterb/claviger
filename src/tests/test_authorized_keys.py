@@ -23,8 +23,8 @@ class TestAuthorizedKeys(unittest.TestCase):
     def test_man_page_examples(self):
         f = six.BytesIO(SSHD_MAN_PAGE_EXAMPLE)
         ak = claviger.authorized_keys.parse(f, False)
-        self.assertTrue(ak.contains('AAAAB3NzaC1yc2EAAAA='))
-        self.assertTrue(ak.contains('AAAAB3NzaC1kc3MAAA=='))
+        self.assertTrue(ak.contains(b'AAAAB3NzaC1yc2EAAAA='))
+        self.assertTrue(ak.contains(b'AAAAB3NzaC1kc3MAAA=='))
         self.assertEqual(len(ak.entries), 7)
 
         g = six.BytesIO()
@@ -33,21 +33,21 @@ class TestAuthorizedKeys(unittest.TestCase):
 
     def test_grawity_hard_line(self):
         e = claviger.authorized_keys.Entry.parse(GRAWITY_EXAMPLE)
-        self.assertEqual(e.keytype, 'future-algo')
+        self.assertEqual(e.keytype, b'future-algo')
 
     def test_getters(self):
         f = six.BytesIO(SSHD_MAN_PAGE_EXAMPLE)
         ak = claviger.authorized_keys.parse(f, False)
         self.assertEqual(len(ak.entries), 7)
-        self.assertEqual(ak.get('doesnotexist'), None)
+        self.assertEqual(ak.get(b'doesnotexist'), None)
 
     def test_remove(self):
         f = six.BytesIO(SSHD_MAN_PAGE_EXAMPLE)
         ak = claviger.authorized_keys.parse(f, False)
-        self.assertTrue(ak.contains('AAAAB3NzaC1yc2EAAAA='))
-        ak.remove('AAAAB3NzaC1yc2EAAAA=')
-        self.assertFalse(ak.contains('AAAAB3NzaC1yc2EAAAA='))
-        self.assertTrue(ak.contains('AAAAB3NzaC1kc3MAAA=='))
+        self.assertTrue(ak.contains(b'AAAAB3NzaC1yc2EAAAA='))
+        ak.remove(b'AAAAB3NzaC1yc2EAAAA=')
+        self.assertFalse(ak.contains(b'AAAAB3NzaC1yc2EAAAA='))
+        self.assertTrue(ak.contains(b'AAAAB3NzaC1kc3MAAA=='))
         ak.removeAllKeys()
         self.assertEqual(len(ak.entries), 0)
 
