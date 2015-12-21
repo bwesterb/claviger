@@ -19,7 +19,7 @@ setup(
                     'config.schema.yml']},
     test_suite='claviger.tests',
     license='GPL 3.0',
-    install_requires=['demandimport',
+    install_requires=['demandimport >=0.3.0',
                       'PyYAML',
                       'six',
                       'tarjan',
