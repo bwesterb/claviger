@@ -52,6 +52,8 @@ def check_server(job):
         # Check which keys to remove
         if server['keepOtherKeys']:
             for key_name in server['absent']:
+                if not ak.contains(job.keys[key_name]['key']):
+                    continue
                 ak.remove(job.keys[key_name]['key'])
                 n_keys_removed += 1
         allowed = {job.keys[key_name]['key']
