@@ -51,10 +51,31 @@ Claviger config file
 A ``.claviger`` is written in YAML_.  It consists of two maps: the ``keys``
 map and the ``servers`` map.
 
-As seen in the example above, the ``keys`` map has as values SSH
+.. code:: yaml
+
+    servers:
+        server_key:
+            # ... (server stanza)
+        server_key2:
+            # ... (server stanza)
+    keys:
+        key_name: # ... (ssh public key)
+        key_name2: # ... (ssh public key)
+
+As seen in the example at the top, the ``keys`` map has as values SSH
 public keys as they would appear in an ``authorized_keys`` file.
 
-The ``servers`` map consists of key-stanza pairs.
+The ``servers`` map consists of key-stanza pairs.  Each stanza is a map
+of option name/value pairs, like:
+
+.. code:: yaml
+
+    server_key:
+        option_name: option_value
+        option_name2: option_value
+        # ...
+
+See below for the available options in the server-stanza's.
 
 Server key
 ----------
@@ -72,6 +93,9 @@ Examples of keys are
 
 You can also specify ``user``, ``hostname`` and ``port`` explicitly.
 See below.
+
+If a server key starts with a dollar sign (for instance ``$work``),
+then it is considered ``abstract`` --- see below.
 
 Server stanzas
 --------------
@@ -103,13 +127,62 @@ A server stanza is a map which may have the following entries.
 ``like``           | Name of another server stanza.  If set, the entries of
                      the other server stanza will be used as default values
                      for this server stanza.
-                   | *Default*: *(unset)*.
+                   | *Default*: ``$default``
 ``ssh_user``       | The user to use to get and put the
                      ``authorized_keys`` file.
                    | *Default*: the same as ``user``
 ``port``           | The port to use to connect to the server.
                    | *Default*: 22.
+``abstract``       | ``true`` or ``false``. If set to ``true``, ``claviger``
+                     will not check this server.  See below.
+                   | *Default*: ``false``
 ================== =============================================================
+
+
+Abstract servers and ``$default``
+---------------------------------
+
+``claviger`` will not check an *abstract* server.  This is useful to cleanly
+configure multiple server.
+
+.. code:: yaml
+
+    servers:
+        $mine:
+            keepOthers: false
+            present:
+                - my_first_key
+                - my_second_key
+        $work:
+            present:
+                - my_work_key
+            absent:
+                - my_first_key
+
+        my-first-server.tld:
+            like: $mine
+        my-second-server.tld:
+            like: $mine
+        alpha.at-work.tld:
+            like: $work
+        beta.at_work.tld:
+            like: $work
+
+By default, server inherits from the hidden ``$default`` abstract server.
+
+.. code:: yaml
+
+    servers:
+        $default:
+            user: myname
+            present:
+                - this_key_is_put_everywhere
+        host1.tld: # will use myname as user
+        host2.tld: # "
+        root@host3.tld  # will use root as user
+        host4.tld:
+            absent:
+                - this_key_is_put_everywhere # except here
 
 
 .. _YAML: http://yaml.org

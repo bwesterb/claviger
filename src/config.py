@@ -16,7 +16,7 @@ class ConfigError(Exception):
     pass
 
 ParsedServerKey = collections.namedtuple('ParsedServerKey',
-                                    ('hostname', 'user', 'port'))
+                                    ('hostname', 'user', 'port', 'abstract'))
 
 l = logging.getLogger(__name__)
 
@@ -36,17 +36,24 @@ def get_schema():
 class ConfigurationError(Exception):
     pass
 
-def parse_server_key(hostname):
+def parse_server_key(key):
     """ Converts a server key like (root@host:1234 or just host)
-                to a triplet (host, user, port). """
+                to a triplet (user, port, hostname, abstract) """
     port = None
     user = None
-    if ':' in hostname:
-        hostname, _port = hostname.rsplit(':', 1) 
-        port = int(_port)
-    if '@' in hostname:
-        user, hostname = hostname.split('@', 1)
-    return ParsedServerKey(user=user, port=port, hostname=hostname)
+    abstract = False
+    hostname = None
+    if key.startswith('$'):
+        abstract = True
+    else:
+        hostname = key
+        if ':' in hostname:
+            hostname, _port = hostname.rsplit(':', 1)
+            port = int(_port)
+        if '@' in hostname:
+            user, hostname = hostname.split('@', 1)
+    return ParsedServerKey(user=user, port=port, hostname=hostname,
+                                abstract=abstract)
 
 def load(path):
     """ Loads the configuration file.
@@ -57,8 +64,16 @@ def load(path):
     l.debug('loading configuration file ...')
     with open(path) as f:
         cfg = yaml.load(f)
-    
+
     l.debug('  - checking schema')
+    # First small fixes which the schema can't handle
+    cfg.setdefault('servers', {})
+    cfg['servers'].setdefault('$default', {})
+    for key in cfg['servers']:
+        if cfg['servers'][key] is None:
+            cfg['servers'][key] = dict()
+
+    # Now check the schema
     jsonschema.validate(cfg, get_schema())
     # TODO format into pretty error message
 
@@ -75,10 +90,8 @@ def load(path):
         new_keys[key_name] = new_key
     cfg['keys'] = new_keys
 
-    
     l.debug('  - processing server stanza short-hands')
     new_servers = {}
-    cfg.setdefault('servers', {})
     for server_key, server in six.iteritems(cfg['servers']):
         parsed_server_key = parse_server_key(server_key)
         server.setdefault('name', server_key)
@@ -91,7 +104,9 @@ def load(path):
         server.setdefault('absent', [])
         server.setdefault('allow', [])
         server.setdefault('keepOtherKeys')
-        server.setdefault('like')
+        server.setdefault('like', '$default' if server_key != '$default'
+                                        else None)
+        server.setdefault('abstract', parsed_server_key.abstract)
         prabsent = frozenset(server['present']) & frozenset(server['absent'])
         if prabsent:
             raise ConfigurationError(

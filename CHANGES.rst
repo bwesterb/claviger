@@ -8,6 +8,24 @@ claviger Changelog
 
   If ``keepOtherKeys`` is set to false, claviger will remove any keys present
   except for those in the ``present`` and ``allow`` list.
+- Add *abstract servers*.  Let every server inherit from the hidden
+  abstract server ``$default``.
+- Allow
+
+  .. code:: yaml
+
+    servers:
+        server1:
+        server2:
+
+  which is prettier than
+
+  .. code:: yaml
+
+    servers:
+        server1: {}
+        server2: {}
+
 - bugfix: actually set server name with ``name`` option.
 
 

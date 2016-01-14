@@ -62,7 +62,8 @@ class Claviger(object):
                                     keys=self.cfg['keys'],
                                     dry_run=self.args.dry_run,
                                     no_diff=self.args.no_diff)
-                             for server_name in self.cfg['servers'])):
+                         for server_name in self.cfg['servers']
+                         if not self.cfg['servers'][server_name]['abstract'])):
             if not ret.ok:
                 errors_occured = True
                 if isinstance(ret.result,
