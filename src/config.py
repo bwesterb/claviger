@@ -15,7 +15,7 @@ import claviger.authorized_keys
 class ConfigError(Exception):
     pass
 
-ParsedServerName = collections.namedtuple('ParsedServerName',
+ParsedServerKey = collections.namedtuple('ParsedServerKey',
                                     ('hostname', 'user', 'port'))
 
 l = logging.getLogger(__name__)
@@ -36,8 +36,8 @@ def get_schema():
 class ConfigurationError(Exception):
     pass
 
-def parse_server_name(hostname):
-    """ Converts a server name like (root@host:1234 or just host)
+def parse_server_key(hostname):
+    """ Converts a server key like (root@host:1234 or just host)
                 to a triplet (host, user, port). """
     port = None
     user = None
@@ -46,7 +46,7 @@ def parse_server_name(hostname):
         port = int(_port)
     if '@' in hostname:
         user, hostname = hostname.split('@', 1)
-    return ParsedServerName(user=user, port=port, hostname=hostname)
+    return ParsedServerKey(user=user, port=port, hostname=hostname)
 
 def load(path):
     """ Loads the configuration file.
@@ -79,12 +79,13 @@ def load(path):
     l.debug('  - processing server stanza short-hands')
     new_servers = {}
     cfg.setdefault('servers', {})
-    for server_name, server in six.iteritems(cfg['servers']):
-        parsed_server_name = parse_server_name(server_name)
-        server.setdefault('name', server_name)
-        server.setdefault('port', parsed_server_name.port)
-        server.setdefault('user', parsed_server_name.user)
-        server.setdefault('hostname', parsed_server_name.hostname)
+    for server_key, server in six.iteritems(cfg['servers']):
+        parsed_server_key = parse_server_key(server_key)
+        server.setdefault('name', server_key)
+        server_name = server['name']
+        server.setdefault('port', parsed_server_key.port)
+        server.setdefault('user', parsed_server_key.user)
+        server.setdefault('hostname', parsed_server_key.hostname)
         server.setdefault('ssh_user', server['user'])
         server.setdefault('present', [])
         server.setdefault('absent', [])
@@ -100,7 +101,7 @@ def load(path):
                 "Key {0} (on {1}) does not exist".format(key_name, server_name)
         if server_name in new_servers:
             raise ConfigurationError(
-                "Duplicate server name {0}" % server_name)
+                "Duplicate server name {0}".format(server_name))
         new_servers[server_name] = server
     cfg['servers'] = new_servers
 
