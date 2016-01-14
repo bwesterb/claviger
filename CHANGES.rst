@@ -1,8 +1,8 @@
 claviger Changelog
 ******************
 
-0.1.3 (unreleased)
-==================
+0.2 (2016-01-14)
+================
 
 - Add ``allow``-list to server stanza.
 
