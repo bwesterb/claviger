@@ -26,6 +26,10 @@ properties:
           type: array
           items:
             type: string
+        allow:
+          type: array
+          items:
+            type: string
         like: { type: string }
         keepOtherKeys: { type: boolean}
       additionalProperties: false

@@ -4,6 +4,10 @@ claviger Changelog
 0.1.3 (unreleased)
 ==================
 
+- Add ``allow``-list to server stanza.
+
+  If ``keepOtherKeys`` is set to false, claviger will remove any keys present
+  except for those in the ``present`` and ``allow`` list.
 - bugfix: actually set server name with ``name`` option.
 
 

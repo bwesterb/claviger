@@ -89,6 +89,7 @@ def load(path):
         server.setdefault('ssh_user', server['user'])
         server.setdefault('present', [])
         server.setdefault('absent', [])
+        server.setdefault('allow', [])
         server.setdefault('keepOtherKeys')
         server.setdefault('like')
         prabsent = frozenset(server['present']) & frozenset(server['absent'])
@@ -96,7 +97,13 @@ def load(path):
             raise ConfigurationError(
                 "Keys {0} are required to be both present and absent on {1}"
                     .format(tuple(prabsent), server_name))
-        for key_name in itertools.chain(server['present'], server['absent']):
+        ablow = frozenset(server['allow']) & frozenset(server['absent'])
+        if ablow:
+            raise ConfigurationError(
+                "Keys {0} are listed allowed and absent on {1}"
+                    .format(tuple(ablow), server_name))
+        for key_name in itertools.chain(server['present'], server['absent'],
+                                        server['allow']):
             if not key_name in cfg['keys']:
                 "Key {0} (on {1}) does not exist".format(key_name, server_name)
         if server_name in new_servers:
@@ -129,17 +136,23 @@ def load(path):
                 if target_server[attr] is None:
                     target_server[attr] = source_server[attr]
 
-        # Now, the present/absent lists
+        # Now, the present/absent/allow lists
         for key in source_server['present']:
             if key in target_server['absent']:
                 continue
             if key not in target_server['present']:
                 target_server['present'].append(key)
         for key in source_server['absent']:
-            if key in target_server['present']:
+            if (key in target_server['present']
+                    or key in target_server['allow']):
                 continue
             if key not in target_server['absent']:
                 target_server['absent'].append(key)
+        for key in source_server['allow']:
+            if key in target_server['absent']:
+                continue
+            if key not in target_server['allow']:
+                target_server['allow'].append(key)
 
     l.debug('  - setting defaults on server stanzas')
     for server in six.itervalues(cfg['servers']):

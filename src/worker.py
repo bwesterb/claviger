@@ -57,7 +57,8 @@ def check_server(job):
                 ak.remove(job.keys[key_name]['key'])
                 n_keys_removed += 1
         allowed = {job.keys[key_name]['key']
-                        for key_name in server['present']}
+                        for key_name in server['present'] + server['allow']}
+
         for entry in ak.entries:
             if entry.key in allowed:
                 continue

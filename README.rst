@@ -95,6 +95,11 @@ A server stanza is a map which may have the following entries.
                      will remove all keys not explicitly allowed form the
                      ``authorized_keys`` file.
                    | *Default*: ``true``.
+``allow``          | A list of SSH-keys that are also allowed to be in the
+                     ``authorized_keys`` file if ``keepOtherKeys`` is set
+                     to ``false``.  These keys will not be added, if
+                     not present already.
+                   | *Default*: the empty list ``[]``
 ``like``           | Name of another server stanza.  If set, the entries of
                      the other server stanza will be used as default values
                      for this server stanza.
