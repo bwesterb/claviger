@@ -1,7 +1,7 @@
 claviger Changelog
 ******************
 
-0.2.1 (unreleased)
+0.2.1 (2016-03-15)
 ==================
 
 - Add missing dependency to jsonschema.  (Thanks-to: Joost Rijneveld)
