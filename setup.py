@@ -24,6 +24,7 @@ setup(
                       'PyYAML',
                       'six',
                       'tarjan',
+                      'jsonschema',
                             ],
     entry_points = {
         'console_scripts': [
