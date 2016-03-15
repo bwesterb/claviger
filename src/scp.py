@@ -39,7 +39,7 @@ class SCPSession(object):
         l.debug('executing %s', cmd)
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                   stderr=subprocess.PIPE)
-        stdout_txt, stderr_txt = p.communicate()
+        stdout_txt, stderr_txt = [x.decode('utf-8') for x in p.communicate()]
         if p.returncode != 0:
             raise interpret_scp_error(p.returncode, stderr_txt, stdout_txt)
 
