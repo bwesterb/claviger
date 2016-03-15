@@ -4,7 +4,8 @@ claviger Changelog
 0.2.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Add missing dependency to jsonschema.  (Thanks-to: Joost Rijneveld)
+- Properly decode output of `scp`.  (Thanks-to: Joost Rijneveld)
 
 
 0.2 (2016-01-14)
