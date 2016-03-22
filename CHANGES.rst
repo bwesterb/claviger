@@ -4,7 +4,7 @@ claviger Changelog
 0.2.2 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Do not present configuration file errors as unhandled exceptions.
 
 
 0.2.1 (2016-03-15)

@@ -42,6 +42,10 @@ class Claviger(object):
                 return self.show_configuration_instructions()
             self.cfg = claviger.config.load(self.args.configfile)
             self.check_servers()
+        except claviger.config.ConfigurationError as e:
+            s = 'There was a problem with your configfile {0}:\n {1}\n'
+            sys.stderr.write(s.format(self.args.configfile, e))
+            return 3
         except Exception:
             return self.handle_uncaught_exception()
 

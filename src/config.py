@@ -65,6 +65,9 @@ def load(path):
     with open(path) as f:
         cfg = yaml.load(f)
 
+    if not isinstance(cfg, dict):
+        raise ConfigurationError('Configuration file is empty')
+
     l.debug('  - checking schema')
     # First small fixes which the schema can't handle
     cfg.setdefault('servers', {})
